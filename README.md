@@ -4,6 +4,6 @@
 ## Applications
 ### Image Compression
 ![VQ2](Resources/Image/VQ2.jpg)
-![VQ8](Resources/Image/VQ2.jpg)
-![VQ16](Resources/Image/VQ2.jpg)
+![VQ8](Resources/Image/VQ8.jpg)
+![VQ16](Resources/Image/VQ16.jpg)
 ![original](Resources/Image/waterfall.jpg)
