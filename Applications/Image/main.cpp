@@ -20,7 +20,7 @@ int main()
 	}
 
 	CTSVQ<uchar> TSVQ;
-	TSVQ.quantizeVectors(ImageSet, Image.channels(), 2);
+	TSVQ.quantizeVectors(ImageSet, Image.channels(), 16);
 
 	for (int rows=0; rows<ImageHeight; ++rows)
 	{
@@ -34,7 +34,7 @@ int main()
 			}
 		}
 	}
-	cv::imwrite("Compression.jpg", Image);
+	cv::imwrite("VQ.jpg", Image);
 
 	return 0;
 }
