@@ -20,7 +20,7 @@ int main()
 	}
 
 	CTSVQ<uchar> TSVQ;
-	TSVQ.quantizeVectors(ImageSet, Image.channels(), 16);
+	TSVQ.quantizeVectors(ImageSet, Image.channels(), 64);
 
 	for (int rows=0; rows<ImageHeight; ++rows)
 	{
