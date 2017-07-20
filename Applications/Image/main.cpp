@@ -5,39 +5,28 @@
 
 int main()
 {
-	cv::Mat myImage = cv::imread("waterfall.jpg");
+	cv::Mat Image = cv::imread("waterfall.jpg");
 
-	auto ImageWidth = myImage.cols;
-	auto ImageHeight = myImage.rows;
-	auto PixelsSize = ImageHeight * ImageWidth;
-
-	unsigned int Dimension = 0;
-	for (int i=3; i<PixelsSize; ++i)
-	{
-		if (PixelsSize % i)
-		{
-			Dimension = i;
-			break;
-		}
-	}
+	size_t ImageWidth = Image.cols, ImageHeight = Image.rows;
+	size_t PixelsSize = ImageHeight * ImageWidth;
 
 	std::vector<uchar*> ImageSet;
 	for (int rows=0; rows<ImageHeight; ++rows)
 	{
 		for (int cols=0; cols<ImageWidth; ++cols)
 		{
-			ImageSet.push_back(myImage.ptr(rows) + cols * 3);
+			ImageSet.push_back(Image.ptr(rows) + cols * 3);
 		}
 	}
 
 	CTSVQ<uchar> TSVQ;
-	TSVQ.quantizeVectors(ImageSet, 3, 2);
+	TSVQ.quantizeVectors(ImageSet, Image.channels(), 2);
 
 	for (int rows=0; rows<ImageHeight; ++rows)
 	{
 		for (int cols=0; cols<ImageWidth; ++cols)
 		{
-			auto pRows = myImage.ptr(rows);
+			auto pRows = Image.ptr(rows);
 			auto pPixel = TSVQ.findCodeVectors(pRows + cols * 3);
 			for (int i=0; i<3; ++i)
 			{
@@ -45,9 +34,7 @@ int main()
 			}
 		}
 	}
-
-	cv::imshow("test", myImage);
-	cv::waitKey();
+	cv::imwrite("Compression.jpg", Image);
 
 	return 0;
 }

@@ -3,3 +3,4 @@
 
 ## Applications
 ### Image Compression
+![VQ2](Resources/Image/Compression2.jpg)
