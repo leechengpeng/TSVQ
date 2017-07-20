@@ -1,11 +1,11 @@
 #include <iostream>
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
-#include "TSVQ.h"
+#include "../../TSVQ.hpp"
 
 int main()
 {
-	cv::Mat myImage = cv::imread("test.jpg");
+	cv::Mat myImage = cv::imread("waterfall.jpg");
 
 	auto ImageWidth = myImage.cols;
 	auto ImageHeight = myImage.rows;
