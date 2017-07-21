@@ -12,7 +12,7 @@
 ```C++
 void build(const std::vector<T*>& vVectorSet);
 ```
-3. **Find Code Vector**
+3. **Quantize/Cluster Vectors**
 ```C++
 const T* quantizeVector(const T *vVector) const;
 ```
