@@ -8,13 +8,13 @@
 ```C++
 #include "TSVQ.hpp"
 ```
-2. **Quantize Vectors**
+2. **Build Tree Structures**
 ```C++
-void quantizeVectors(const std::vector<T*>& vVectorSet);
+void build(const std::vector<T*>& vVectorSet);
 ```
 3. **Find Code Vector**
 ```C++
-const T* find(const T *vVectors);
+const T* quantizeVector(const T *vVector) const;
 ```
 
 ## Applications
