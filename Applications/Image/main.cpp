@@ -11,23 +11,23 @@ int main()
 	size_t PixelsSize = ImageHeight * ImageWidth;
 
 	std::vector<uchar*> ImageSet;
-	for (int rows=0; rows<ImageHeight; ++rows)
+	for (unsigned rows=0; rows<ImageHeight; ++rows)
 	{
-		for (int cols=0; cols<ImageWidth; ++cols)
+		for (unsigned cols=0; cols<ImageWidth; ++cols)
 		{
 			ImageSet.push_back(Image.ptr(rows) + cols * 3);
 		}
 	}
 
-	CTSVQ<uchar> TSVQ;
-	TSVQ.quantizeVectors(ImageSet, Image.channels(), 64);
+	LLL::TSVQ<uchar, 3> TSVQ;
+	TSVQ.quantizeVectors(ImageSet, 16);
 
-	for (int rows=0; rows<ImageHeight; ++rows)
+	for (unsigned rows=0; rows<ImageHeight; ++rows)
 	{
-		for (int cols=0; cols<ImageWidth; ++cols)
+		for (unsigned cols=0; cols<ImageWidth; ++cols)
 		{
 			auto pRows = Image.ptr(rows);
-			auto pPixel = TSVQ.findCodeVectors(pRows + cols * 3);
+			auto pPixel = TSVQ.find(pRows + cols * 3);
 			for (int i=0; i<3; ++i)
 			{
 				pRows[cols*3 + i] = *(pPixel + i);
