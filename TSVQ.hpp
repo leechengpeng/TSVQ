@@ -30,12 +30,12 @@ namespace LLL
 		TSVQ(void);
 		~TSVQ(void);
 	
-		void quantizeVectors(const std::vector<T*>& vVectorSet);
-		void quantizeVectors(const std::vector<T*>& vVectorSet, unsigned vCodeVectorsNums);
-		void quantizeVectors(const std::vector<T*>& vVectorSet, unsigned vCodeVectorsNums, unsigned vMaxInterations);
-		void quantizeVectors(const std::vector<T*>& vVectorSet, unsigned vCodeVectorsNums, unsigned vMaxInterations, double vEpsilon);
+		void build(const std::vector<T*>& vVectorSet);
+		void build(const std::vector<T*>& vVectorSet, unsigned vCodeVectorsNums);
+		void build(const std::vector<T*>& vVectorSet, unsigned vCodeVectorsNums, unsigned vMaxInterations);
+		void build(const std::vector<T*>& vVectorSet, unsigned vCodeVectorsNums, unsigned vMaxInterations, double vEpsilon);
 
-		const T* find(const T *vVectors);
+		const T* quantizeVector(const T *vVector) const;
 
 	private:
 		typedef _SNode<T, Dimension> SNode;
@@ -45,8 +45,8 @@ namespace LLL
 		void __calCentroid(const std::vector<T*> &vVectorsSet, T *voCentroid);
 		void __iterate(const std::vector<T*>& vVectorSet, std::vector<SNode*> &vSplitNodeSet, const double vDistortionMeasure);
 
-		double __calDistortionMeasure(const std::vector<SNode*> &vNodeSet, unsigned vNumVectors);
-		double __calEuclideanDistance(const T *vVectorsA, const T *vVectorsB);
+		double __calDistortionMeasure(const std::vector<SNode*> &vNodeSet, unsigned vNumVectors) const;
+		double __distance(const T *vVectorA, const T *vVectorB) const;
 
 		double m_Epsilon;
 		SNode* m_RootNode;
@@ -78,7 +78,7 @@ namespace LLL
 	//******************************************************************************
 	//FUNCTION:
 	template <typename T, unsigned Dimension>
-	void TSVQ<T, Dimension>::quantizeVectors(const std::vector<T*>& vVectorSet)
+	void TSVQ<T, Dimension>::build(const std::vector<T*>& vVectorSet)
 	{
 		_ASSERT(vVectorSet.size() && Dimension);
 
@@ -112,50 +112,50 @@ namespace LLL
 	//******************************************************************************
 	//FUNCTION:
 	template <typename T, unsigned Dimension>
-	inline void TSVQ<T, Dimension>::quantizeVectors(const std::vector<T*>& vVectorSet, unsigned int vCodeVectorsNums)
+	inline void TSVQ<T, Dimension>::build(const std::vector<T*>& vVectorSet, unsigned int vCodeVectorsNums)
 	{
 		_ASSERT(vCodeVectorsNums != 0);
 		m_CodeVectorsNums = vCodeVectorsNums;
 
-		quantizeVectors(vVectorSet);
+		build(vVectorSet);
 	}
 
 	//******************************************************************************
 	//FUNCTION:
 	template <typename T, unsigned Dimension>
-	inline void TSVQ<T, Dimension>::quantizeVectors(const std::vector<T*>& vVectorSet, unsigned int vCodeVectorsNums, unsigned int vMaxInterations)
+	inline void TSVQ<T, Dimension>::build(const std::vector<T*>& vVectorSet, unsigned int vCodeVectorsNums, unsigned int vMaxInterations)
 	{
 	
 		m_MaxInterations = vMaxInterations;
 
-		quantizeVectors(vVectorSet, vCodeVectorsNums);
+		build(vVectorSet, vCodeVectorsNums);
 	}
 
 	//******************************************************************************
 	//FUNCTION:
 	template <typename T, unsigned Dimension>
-	inline void TSVQ<T, Dimension>::quantizeVectors(const std::vector<T*>& vVectorSet, unsigned int vCodeVectorsNums, unsigned int vMaxInterations, double vEpsilon)
+	inline void TSVQ<T, Dimension>::build(const std::vector<T*>& vVectorSet, unsigned int vCodeVectorsNums, unsigned int vMaxInterations, double vEpsilon)
 	{
 		_ASSERT(vEpsilon != 0);
 		m_Epsilon = vEpsilon;
 
-		quantizeVectors(vVectorSet, vCodeVectorsNums, vMaxInterations);
+		build(vVectorSet, vCodeVectorsNums, vMaxInterations);
 	}
 
 	//******************************************************************************
 	//FUNCTION:
 	template <typename T, unsigned Dimension>
-	const T* TSVQ<T, Dimension>::find(const T *vVectors)
+	const T* TSVQ<T, Dimension>::quantizeVector(const T *vVector) const
 	{
-		_ASSERT(vVectors);
+		_ASSERT(vVector);
 
 		auto Node = m_RootNode;
 
 		// PIXME: if there is no LeafNode?
 		while (Node->pLeft != NULL && Node->pRight != NULL)
 		{
-			auto LeftDistance  = __calEuclideanDistance(vVectors, Node->pLeft->CodeVectors);
-			auto RightDistance = __calEuclideanDistance(vVectors, Node->pRight->CodeVectors);
+			auto LeftDistance  = __distance(vVector, Node->pLeft->CodeVectors);
+			auto RightDistance = __distance(vVector, Node->pRight->CodeVectors);
 
 			LeftDistance < RightDistance ? Node = Node->pLeft : Node = Node->pRight;
 		}
@@ -192,11 +192,11 @@ namespace LLL
 			unsigned int Index = 0;
 
 			auto MinIndex	 = Index;
-			auto MinDistance = __calEuclideanDistance(Vectors, vSplitNodeSet.at(Index)->CodeVectors);
+			auto MinDistance = __distance(Vectors, vSplitNodeSet.at(Index)->CodeVectors);
 
 			for (++Index; Index<vSplitNodeSet.size(); ++Index)
 			{
-				auto Distance = __calEuclideanDistance(Vectors, vSplitNodeSet.at(Index)->CodeVectors);
+				auto Distance = __distance(Vectors, vSplitNodeSet.at(Index)->CodeVectors);
 
 				if (Distance < MinDistance)
 				{
@@ -271,7 +271,7 @@ namespace LLL
 	//******************************************************************************
 	//FUNCTION:
 	template <typename T, unsigned Dimension>
-	double TSVQ<T, Dimension>::__calDistortionMeasure(const std::vector<SNode*> &vNodeSet, unsigned vNumVectors)
+	double TSVQ<T, Dimension>::__calDistortionMeasure(const std::vector<SNode*> &vNodeSet, unsigned vNumVectors) const
 	{
 		_ASSERT(vNumVectors && Dimension);
 
@@ -280,7 +280,7 @@ namespace LLL
 		{
 			for (auto Vector : Node->VectorsSet)
 			{
-				EuclideanDistanceSum += __calEuclideanDistance(Vector, Node->CodeVectors);
+				EuclideanDistanceSum += __distance(Vector, Node->CodeVectors);
 			}
 		}
 
@@ -290,14 +290,14 @@ namespace LLL
 	//******************************************************************************
 	//FUNCTION:
 	template <typename T, unsigned Dimension>
-	double TSVQ<T, Dimension>::__calEuclideanDistance(const T *vVectorsA, const T *vVectorsB)
+	double TSVQ<T, Dimension>::__distance(const T *vVectorA, const T *vVectorB) const
 	{
-		_ASSERT(vVectorsA && vVectorsB);
+		_ASSERT(vVectorA && vVectorB);
 
 		double Sum = 0.0;
 		for (unsigned Index=0; Index < Dimension; ++Index)
 		{
-			Sum += (vVectorsA[Index] - vVectorsB[Index]) * (vVectorsA[Index] - vVectorsB[Index]);
+			Sum += (vVectorA[Index] - vVectorB[Index]) * (vVectorA[Index] - vVectorB[Index]);
 		}
 
 		return sqrt(Sum);

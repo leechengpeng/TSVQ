@@ -20,14 +20,14 @@ int main()
 	}
 
 	LLL::TSVQ<uchar, 3> TSVQ;
-	TSVQ.quantizeVectors(ImageSet, 16);
+	TSVQ.build(ImageSet, 4);
 
 	for (unsigned rows=0; rows<ImageHeight; ++rows)
 	{
 		for (unsigned cols=0; cols<ImageWidth; ++cols)
 		{
 			auto pRows = Image.ptr(rows);
-			auto pPixel = TSVQ.find(pRows + cols * 3);
+			auto pPixel = TSVQ.quantizeVector(pRows + cols * 3);
 			for (int i=0; i<3; ++i)
 			{
 				pRows[cols*3 + i] = *(pPixel + i);
