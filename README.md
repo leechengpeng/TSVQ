@@ -8,6 +8,8 @@
 
 ### Image Compression
 Project: [https://github.com/leechengpeng/TSVQ/tree/master/Applications/Image](https://github.com/leechengpeng/TSVQ/tree/master/Applications/Image)
+
+Requirement：OpenCV, Visual Studio
 ##### VQ: 2
 ![VQ2](Resources/Image/VQ2.jpg)
 ##### VQ: 8
