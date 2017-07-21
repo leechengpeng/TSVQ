@@ -7,13 +7,14 @@
 **TSVQ** is used for lossy data compression, lossy data correction, pattern recognition, density estimation and clustering.
 
 ### Image Compression
-#### VQ 2
+Project: [https://github.com/leechengpeng/TSVQ/tree/master/Applications/Image](https://github.com/leechengpeng/TSVQ/tree/master/Applications/Image)
+##### VQ: 2
 ![VQ2](Resources/Image/VQ2.jpg)
-#### VQ 8
+##### VQ: 8
 ![VQ8](Resources/Image/VQ8.jpg)
-#### VQ 16
+##### VQ: 16
 ![VQ16](Resources/Image/VQ16.jpg)
-#### VQ 64
+##### VQ: 64
 ![VQ64](Resources/Image/VQ64.jpg)
-#### Origin
+##### Original Image
 ![original](Resources/Image/waterfall.jpg)
