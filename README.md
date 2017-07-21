@@ -8,6 +8,14 @@
 ```C++
 #include "TSVQ.hpp"
 ```
+2. **Quantize Vectors**
+```C++
+void quantizeVectors(const std::vector<T*>& vVectorSet);
+```
+3. **Find Code Vector**
+```C++
+const T* find(const T *vVectors);
+```
 
 ## Applications
 **TSVQ** is used for lossy data compression, lossy data correction, pattern recognition, density estimation and clustering.
