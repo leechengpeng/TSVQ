@@ -3,12 +3,6 @@
 
 **Tree Structure Vector Quantization (TSVQ)** is a classical quantization technique from signal processing that allows the modeling of probability density functions by the distribution of prototype vectors. It was originally used for data compression. It works by dividing a large set of points (vectors) into groups having approximately the same number of points closet to them. Each group is represented by its centroid point, as in k-means and some other clustering algorithms.
 
-## Usage
-**Import TSVQ**
-```C++
-#include "TSVQ.hpp"
-```
-
 ## Applications
 **TSVQ** is used for lossy data compression, lossy data correction, pattern recognition, density estimation and clustering.
 
@@ -26,3 +20,9 @@ Requirement: `OpenCV`, `Visual Studio`
 ![VQ64](Resources/Image/VQ64.jpg)
 #### Original Image
 ![original](Resources/Image/waterfall.jpg)
+
+## Usage
+**Import TSVQ**
+```C++
+#include "TSVQ.hpp"
+```
