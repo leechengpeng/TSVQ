@@ -7,9 +7,9 @@
 **TSVQ** is used for lossy data compression, lossy data correction, pattern recognition, density estimation and clustering.
 
 ### Image Compression
-Project: [https://github.com/leechengpeng/TSVQ/tree/master/Applications/Image](https://github.com/leechengpeng/TSVQ/tree/master/Applications/Image)
+Project: [Applications/Image](https://github.com/leechengpeng/TSVQ/tree/master/Applications/Image)
 
-Requirement: OpenCV, Visual Studio
+Requirement: `OpenCV`, `Visual Studio`
 ##### VQ: 2
 ![VQ2](Resources/Image/VQ2.jpg)
 ##### VQ: 8
