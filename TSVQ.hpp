@@ -3,42 +3,45 @@
 
 namespace LLL
 {
-	template <typename T, unsigned Dimension>
+	template <typename T>
 	struct _SNode
 	{
-		_SNode() : pLeft(NULL), pRight(NULL) {}
+		_SNode() : pLeft(NULL), pRight(NULL), CodeVectors(NULL){}
 		~_SNode() 
 		{
 			delete pLeft;
 			delete pRight;
 
+			delete[] CodeVectors;
+
 			pLeft  = NULL;
 			pRight = NULL;
+			CodeVectors = NULL;
 		}
 
 		_SNode* pLeft;
 		_SNode* pRight;
 
-		T CodeVectors[Dimension];
+		T* CodeVectors;
 		std::vector<T*> VectorsSet;
 	};
 
-	template <typename T, unsigned Dimension>
+	template <typename T>
 	class TSVQ
 	{
 	public:
 		TSVQ(void);
 		~TSVQ(void);
 	
-		void build(const std::vector<T*>& vVectorSet);
-		void build(const std::vector<T*>& vVectorSet, unsigned vCodeVectorsNums);
-		void build(const std::vector<T*>& vVectorSet, unsigned vCodeVectorsNums, unsigned vMaxInterations);
-		void build(const std::vector<T*>& vVectorSet, unsigned vCodeVectorsNums, unsigned vMaxInterations, double vEpsilon);
+		void build(const std::vector<T*>& vVectorSet, unsigned vDim);
+		void build(const std::vector<T*>& vVectorSet, unsigned vDim, unsigned vCodeVectorsNums);
+		void build(const std::vector<T*>& vVectorSet, unsigned vDim, unsigned vCodeVectorsNums, unsigned vMaxInterations);
+		void build(const std::vector<T*>& vVectorSet, unsigned vDim, unsigned vCodeVectorsNums, unsigned vMaxInterations, double vEpsilon);
 
 		const T* quantizeVector(const T *vVector) const;
 
 	private:
-		typedef _SNode<T, Dimension> SNode;
+		typedef _SNode<T> SNode;
 
 		void __split(std::vector<SNode*> &vSplitNodeSet);
 		void __clusterInputVectorsSet(const std::vector<T*>& vVectorSet, std::vector<SNode*>& vSplitNodeSet);
@@ -51,19 +54,21 @@ namespace LLL
 		double m_Epsilon;
 		SNode* m_RootNode;
 
+		unsigned int m_Dim;
 		unsigned int m_MaxInterations; 
 		unsigned int m_CodeVectorsNums;
 	};
 
-	template <typename T, unsigned Dimension>
-	TSVQ<T, Dimension>::TSVQ(void) : m_MaxInterations(10), m_CodeVectorsNums(1), m_Epsilon(0.001), m_RootNode(NULL)
+	template <typename T>
+	TSVQ<T>::TSVQ(void) : m_MaxInterations(10), m_CodeVectorsNums(1), m_Epsilon(0.001), m_Dim(0), m_RootNode(NULL)
 	{
 
 	}
 
-	template <typename T, unsigned Dimension>
-	TSVQ<T, Dimension>::~TSVQ(void)
+	template <typename T>
+	TSVQ<T>::~TSVQ(void)
 	{
+		m_Dim			  = 0;
 		m_Epsilon		  = 0.001;
 		m_MaxInterations  = 10;
 		m_CodeVectorsNums = 1;
@@ -77,13 +82,16 @@ namespace LLL
 
 	//******************************************************************************
 	//FUNCTION:
-	template <typename T, unsigned Dimension>
-	void TSVQ<T, Dimension>::build(const std::vector<T*>& vVectorSet)
+	template <typename T>
+	void TSVQ<T>::build(const std::vector<T*>& vVectorSet, unsigned vDim)
 	{
-		_ASSERT(vVectorSet.size() && Dimension);
+		_ASSERT(vVectorSet.size());
+
+		m_Dim = vDim;
 
 		m_RootNode = new SNode();
-		m_RootNode->VectorsSet = vVectorSet;
+		m_RootNode->CodeVectors = new T[m_Dim]();
+		m_RootNode->VectorsSet  = vVectorSet;
 		__calCentroid(vVectorSet, m_RootNode->CodeVectors);
 
 		std::vector<SNode*> NodeSet;
@@ -111,41 +119,40 @@ namespace LLL
 
 	//******************************************************************************
 	//FUNCTION:
-	template <typename T, unsigned Dimension>
-	inline void TSVQ<T, Dimension>::build(const std::vector<T*>& vVectorSet, unsigned int vCodeVectorsNums)
+	template <typename T>
+	inline void TSVQ<T>::build(const std::vector<T*>& vVectorSet, unsigned vDim, unsigned vCodeVectorsNums)
 	{
 		_ASSERT(vCodeVectorsNums != 0);
 		m_CodeVectorsNums = vCodeVectorsNums;
 
-		build(vVectorSet);
+		build(vVectorSet, vDim);
 	}
 
 	//******************************************************************************
 	//FUNCTION:
-	template <typename T, unsigned Dimension>
-	inline void TSVQ<T, Dimension>::build(const std::vector<T*>& vVectorSet, unsigned int vCodeVectorsNums, unsigned int vMaxInterations)
+	template <typename T>
+	inline void TSVQ<T>::build(const std::vector<T*>& vVectorSet, unsigned vDim, unsigned vCodeVectorsNums, unsigned vMaxInterations)
 	{
-	
 		m_MaxInterations = vMaxInterations;
 
-		build(vVectorSet, vCodeVectorsNums);
+		build(vVectorSet, vDim, vCodeVectorsNums);
 	}
 
 	//******************************************************************************
 	//FUNCTION:
-	template <typename T, unsigned Dimension>
-	inline void TSVQ<T, Dimension>::build(const std::vector<T*>& vVectorSet, unsigned int vCodeVectorsNums, unsigned int vMaxInterations, double vEpsilon)
+	template <typename T>
+	inline void TSVQ<T>::build(const std::vector<T*>& vVectorSet, unsigned vDim, unsigned vCodeVectorsNums, unsigned vMaxInterations, double vEpsilon)
 	{
 		_ASSERT(vEpsilon != 0);
 		m_Epsilon = vEpsilon;
 
-		build(vVectorSet, vCodeVectorsNums, vMaxInterations);
+		build(vVectorSet, vDim, vCodeVectorsNums, vMaxInterations);
 	}
 
 	//******************************************************************************
 	//FUNCTION:
-	template <typename T, unsigned Dimension>
-	const T* TSVQ<T, Dimension>::quantizeVector(const T *vVector) const
+	template <typename T>
+	const T* TSVQ<T>::quantizeVector(const T *vVector) const
 	{
 		_ASSERT(vVector);
 
@@ -165,16 +172,19 @@ namespace LLL
 
 	//******************************************************************************
 	//FUNCTION:
-	template <typename T, unsigned Dimension>
-	void TSVQ<T, Dimension>::__split(std::vector<SNode*> &vSplitNodeSet)
+	template <typename T>
+	void TSVQ<T>::__split(std::vector<SNode*> &vSplitNodeSet)
 	{
 		for (auto &Node : vSplitNodeSet)
 		{
 			Node->pLeft  = new SNode();
 			Node->pRight = new SNode();
 
+			Node->pLeft->CodeVectors  = new T[m_Dim]();
+			Node->pRight->CodeVectors = new T[m_Dim]();
+
 			auto CodeVectors = Node->CodeVectors;
-			for (unsigned int Index=0; Index<Dimension; ++Index)
+			for (unsigned int Index=0; Index<m_Dim; ++Index)
 			{
 				Node->pLeft->CodeVectors[Index]  = static_cast<T>(CodeVectors[Index] * (1 + m_Epsilon));
 				Node->pRight->CodeVectors[Index] = static_cast<T>(CodeVectors[Index] * (1 - m_Epsilon));
@@ -184,8 +194,8 @@ namespace LLL
 
 	//******************************************************************************
 	//FUNCTION:
-	template <typename T, unsigned Dimension>
-	void TSVQ<T, Dimension>::__clusterInputVectorsSet(const std::vector<T*>& vVectorSet, std::vector<SNode*>& vSplitNodeSet)
+	template <typename T>
+	void TSVQ<T>::__clusterInputVectorsSet(const std::vector<T*>& vVectorSet, std::vector<SNode*>& vSplitNodeSet)
 	{
 		for (const auto &Vectors : vVectorSet)
 		{
@@ -211,8 +221,8 @@ namespace LLL
 
 	//******************************************************************************
 	//FUNCTION:
-	template <typename T, unsigned Dimension>
-	void TSVQ<T, Dimension>::__iterate(const std::vector<T*>& vVectorSet, std::vector<SNode*> &vSplitNodeSet, const double vDistortionMeasure)
+	template <typename T>
+	void TSVQ<T>::__iterate(const std::vector<T*>& vVectorSet, std::vector<SNode*> &vSplitNodeSet, const double vDistortionMeasure)
 	{
 		double CurrentDistortionMeasure  = 0.0;
 		double PreviousDistortionMeasure = vDistortionMeasure;
@@ -243,24 +253,24 @@ namespace LLL
 
 	//******************************************************************************
 	//FUNCTION:
-	template <typename T, unsigned Dimension>
-	void TSVQ<T, Dimension>::__calCentroid(const std::vector<T*> &vVectorsSet, T *voCentroid)
+	template <typename T>
+	void TSVQ<T>::__calCentroid(const std::vector<T*> &vVectorsSet, T *voCentroid)
 	{
 		_ASSERT(voCentroid);
 
 		if (vVectorsSet.size() == 0) return;
 
-		double *Centroid = new double[Dimension]();
+		double *Centroid = new double[m_Dim]();
 
 		for (const auto &Vectors : vVectorsSet)
 		{
-			for (unsigned int Index=0; Index<Dimension; ++Index)
+			for (unsigned int Index=0; Index<m_Dim; ++Index)
 			{
 				Centroid[Index] += Vectors[Index];
 			}
 		}
 
-		for (unsigned int Index=0; Index<Dimension; ++Index)
+		for (unsigned int Index=0; Index<m_Dim; ++Index)
 		{
 			voCentroid[Index] = static_cast<T>(Centroid[Index]/vVectorsSet.size());
 		}
@@ -270,10 +280,10 @@ namespace LLL
 
 	//******************************************************************************
 	//FUNCTION:
-	template <typename T, unsigned Dimension>
-	double TSVQ<T, Dimension>::__calDistortionMeasure(const std::vector<SNode*> &vNodeSet, unsigned vNumVectors) const
+	template <typename T>
+	double TSVQ<T>::__calDistortionMeasure(const std::vector<SNode*> &vNodeSet, unsigned vNumVectors) const
 	{
-		_ASSERT(vNumVectors && Dimension);
+		_ASSERT(vNumVectors);
 
 		double EuclideanDistanceSum = 0.0;
 		for (auto& Node : vNodeSet)
@@ -284,18 +294,18 @@ namespace LLL
 			}
 		}
 
-		return EuclideanDistanceSum / (vNumVectors * Dimension);
+		return EuclideanDistanceSum / (vNumVectors * m_Dim);
 	}
 
 	//******************************************************************************
 	//FUNCTION:
-	template <typename T, unsigned Dimension>
-	double TSVQ<T, Dimension>::__distance(const T *vVectorA, const T *vVectorB) const
+	template <typename T>
+	double TSVQ<T>::__distance(const T *vVectorA, const T *vVectorB) const
 	{
 		_ASSERT(vVectorA && vVectorB);
 
 		double Sum = 0.0;
-		for (unsigned Index=0; Index < Dimension; ++Index)
+		for (unsigned Index=0; Index < m_Dim; ++Index)
 		{
 			Sum += (vVectorA[Index] - vVectorB[Index]) * (vVectorA[Index] - vVectorB[Index]);
 		}
